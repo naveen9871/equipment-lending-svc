@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: postgres_db
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # RabbitMQ management UI
+
+  shipping-service:
+    build: .
+    container_name: shipping_service
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      DB_NAME: postgres_db
+      DB_USER: postgres_user
+      DB_PASSWORD: postgres_password
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_SCHEMA: equipment
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+      LOG_LEVEL: DEBUG
+      RABBITMQ_ENABLED: "True"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_VHOST: /
+      RABBITMQ_EXCHANGE: ecommerce_events
+      CORS_ALLOW_ALL_ORIGINS: "True"
+      SERVICE_NAME: shipping-service
+      SERVICE_PORT: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_data:
