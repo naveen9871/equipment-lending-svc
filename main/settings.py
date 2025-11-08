@@ -161,18 +161,14 @@ DATABASES = {
     }
 }
 
-<<<<<<< HEAD
 
 # settings.py
-=======
->>>>>>> ac8defd1112ed0d724a8efde1c2d80558bd5e03a
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-<<<<<<< HEAD
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -194,5 +190,3 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-=======
->>>>>>> ac8defd1112ed0d724a8efde1c2d80558bd5e03a
