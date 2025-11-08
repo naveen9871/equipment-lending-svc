@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-wr%m0d!it9$bsb*_ky^s(!3l#4mja(vm=yq^bpt_-i3yxid6j-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(",")
 
 
 # Application definition
@@ -43,10 +43,11 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',  # ADD THIS
     'equipment_lending',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # ADD THIS - MUST BE FIRST
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -160,14 +161,18 @@ DATABASES = {
     }
 }
 
+<<<<<<< HEAD
 
 # settings.py
+=======
+>>>>>>> ac8defd1112ed0d724a8efde1c2d80558bd5e03a
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+<<<<<<< HEAD
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -189,3 +194,5 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+=======
+>>>>>>> ac8defd1112ed0d724a8efde1c2d80558bd5e03a
