@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',  # ADD THIS
     'equipment_lending',
-    'corsheaders'
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,198 @@
+[
+  {
+    "model": "equipment_lending.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$xyz$...",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "admin_user",
+      "first_name": "Admin",
+      "last_name": "User",
+      "email": "admin@school.edu",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "role": "admin",
+      "phone": "+1234567890",
+      "department": "Administration"
+    }
+  },
+  {
+    "model": "equipment_lending.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$xyz$...",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "staff_user",
+      "first_name": "Staff",
+      "last_name": "Member",
+      "email": "staff@school.edu",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "role": "staff",
+      "phone": "+1234567891",
+      "department": "IT Department"
+    }
+  },
+  {
+    "model": "equipment_lending.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$xyz$...",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "student1",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@student.school.edu",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "role": "student",
+      "phone": "+1234567892",
+      "department": "Computer Science"
+    }
+  },
+  {
+    "model": "equipment_lending.equipmentcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Photography",
+      "description": "Cameras, lenses, and photography equipment",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipmentcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Technology",
+      "description": "Laptops, tablets, and electronic devices",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipmentcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Sports",
+      "description": "Sports equipment and gear",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipment",
+    "pk": 1,
+    "fields": {
+      "name": "Canon EOS R5 Camera",
+      "category": 1,
+      "description": "Professional mirrorless camera with 45MP sensor",
+      "condition": "excellent",
+      "total_quantity": 5,
+      "available_quantity": 3,
+      "serial_number": "CAM001",
+      "location": "Media Lab A",
+      "purchase_date": "2023-06-15",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipment",
+    "pk": 2,
+    "fields": {
+      "name": "MacBook Pro 16-inch",
+      "category": 2,
+      "description": "Apple MacBook Pro with M2 Pro chip, 16GB RAM, 1TB SSD",
+      "condition": "excellent",
+      "total_quantity": 10,
+      "available_quantity": 8,
+      "serial_number": "MBP001",
+      "location": "Computer Lab B",
+      "purchase_date": "2023-08-20",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipment",
+    "pk": 3,
+    "fields": {
+      "name": "Basketball Set",
+      "category": 3,
+      "description": "Professional basketball with pump and net",
+      "condition": "good",
+      "total_quantity": 15,
+      "available_quantity": 12,
+      "serial_number": "SPT001",
+      "location": "Sports Storage",
+      "purchase_date": "2023-03-10",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.equipment",
+    "pk": 4,
+    "fields": {
+      "name": "DJI Mavic Air 2",
+      "category": 1,
+      "description": "4K drone with 3-axis gimbal",
+      "condition": "excellent",
+      "total_quantity": 3,
+      "available_quantity": 1,
+      "serial_number": "DRN001",
+      "location": "Media Lab A",
+      "purchase_date": "2023-11-05",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "equipment_lending.borrowrequest",
+    "pk": 1,
+    "fields": {
+      "user": 3,
+      "equipment": 1,
+      "quantity": 1,
+      "purpose": "For photography class project - campus landscape photography",
+      "status": "approved",
+      "requested_date": "2024-01-10T09:00:00Z",
+      "borrow_from": "2024-01-15T08:00:00Z",
+      "borrow_until": "2024-01-20T17:00:00Z",
+      "approved_by": 2,
+      "approved_date": "2024-01-10T14:30:00Z",
+      "issued_date": "2024-01-15T08:15:00Z",
+      "returned_date": null,
+      "rejection_reason": "",
+      "notes": "Handle with care"
+    }
+  },
+  {
+    "model": "equipment_lending.borrowrequest",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "equipment": 2,
+      "quantity": 1,
+      "purpose": "Need for software development project - building a web application",
+      "status": "pending",
+      "requested_date": "2024-01-12T10:30:00Z",
+      "borrow_from": "2024-01-18T09:00:00Z",
+      "borrow_until": "2024-01-25T17:00:00Z",
+      "approved_by": null,
+      "approved_date": null,
+      "issued_date": null,
+      "returned_date": null,
+      "rejection_reason": "",
+      "notes": "Required for React and Node.js development"
+    }
+  }
+]

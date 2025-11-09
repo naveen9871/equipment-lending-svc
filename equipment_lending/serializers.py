@@ -1,20 +1,28 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from .models import Equipment, EquipmentCategory, BorrowRequest
+from django.db.models import Count
+from .models import Equipment, EquipmentCategory, BorrowRequest, Notification, Wishlist, MaintenanceLog
 
 User = get_user_model()
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
+    password2 = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name',
+        fields = ['username', 'email', 'password', 'password2', 'first_name', 'last_name',
                   'role', 'phone', 'department']
 
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError({"password": "Passwords don't match"})
+        return data
+
     def create(self, validated_data):
+        validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -28,23 +36,35 @@ class UserSerializer(serializers.ModelSerializer):
 
 class EquipmentCategorySerializer(serializers.ModelSerializer):
     equipment_count = serializers.IntegerField(source='equipment.count', read_only=True)
+    available_equipment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = EquipmentCategory
-        fields = ['id', 'name', 'description', 'equipment_count', 'created_at']
+        fields = ['id', 'name', 'description', 'equipment_count', 'available_equipment_count', 'created_at']
+
+    def get_available_equipment_count(self, obj):
+        return obj.equipment.filter(available_quantity__gt=0, is_active=True).count()
 
 
 class EquipmentSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     is_available = serializers.BooleanField(read_only=True)
+    wishlisted = serializers.SerializerMethodField()
+    borrow_count = serializers.IntegerField(source='borrow_requests.count', read_only=True)
 
     class Meta:
         model = Equipment
         fields = ['id', 'name', 'category', 'category_name', 'description',
                   'condition', 'total_quantity', 'available_quantity',
                   'serial_number', 'location', 'purchase_date', 'is_active',
-                  'is_available', 'created_at', 'updated_at']
-        read_only_fields = ['available_quantity']
+                  'is_available', 'wishlisted', 'borrow_count', 'created_at', 'updated_at']
+        read_only_fields = ['available_quantity', 'borrow_count']
+
+    def get_wishlisted(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.wishlisted_by.filter(user=request.user).exists()
+        return False
 
     def create(self, validated_data):
         validated_data['available_quantity'] = validated_data['total_quantity']
@@ -56,10 +76,11 @@ class BorrowRequestSerializer(serializers.ModelSerializer):
     equipment_name = serializers.CharField(source='equipment.name', read_only=True)
     approved_by_name = serializers.CharField(source='approved_by.get_full_name', read_only=True)
     is_overdue = serializers.BooleanField(read_only=True)
+    category_name = serializers.CharField(source='equipment.category.name', read_only=True)
 
     class Meta:
         model = BorrowRequest
-        fields = ['id', 'user', 'user_name', 'equipment', 'equipment_name',
+        fields = ['id', 'user', 'user_name', 'equipment', 'equipment_name', 'category_name',
                   'quantity', 'purpose', 'status', 'requested_date',
                   'borrow_from', 'borrow_until', 'approved_by', 'approved_by_name',
                   'approved_date', 'issued_date', 'returned_date',
@@ -68,6 +89,7 @@ class BorrowRequestSerializer(serializers.ModelSerializer):
                             'approved_date', 'issued_date', 'returned_date']
 
     def validate(self, data):
+        # Fix: Use timezone.now() instead of timezone.now().date() for DateTimeField comparison
         if data['borrow_until'] <= data['borrow_from']:
             raise serializers.ValidationError("Return date must be after borrow date")
 
@@ -80,16 +102,40 @@ class BorrowRequestSerializer(serializers.ModelSerializer):
                 f"Requested quantity exceeds total quantity ({equipment.total_quantity})"
             )
 
+        if data['quantity'] <= 0:
+            raise serializers.ValidationError("Quantity must be at least 1")
+
         return data
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
-        request = BorrowRequest(**validated_data)
+        return super().create(validated_data)
 
-        if not request.check_availability():
-            raise serializers.ValidationError(
-                "Equipment not available for the requested period"
-            )
 
-        request.save()
-        return request
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'notification_type', 'is_read', 
+                 'created_at', 'related_request']
+        read_only_fields = ['created_at']
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    equipment_details = EquipmentSerializer(source='equipment', read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'equipment', 'equipment_details', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class MaintenanceLogSerializer(serializers.ModelSerializer):
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+    completed_by_name = serializers.CharField(source='completed_by.get_full_name', read_only=True)
+
+    class Meta:
+        model = MaintenanceLog
+        fields = ['id', 'equipment', 'equipment_name', 'description', 
+                 'maintenance_date', 'completed_by', 'completed_by_name',
+                 'next_maintenance', 'cost', 'created_at']
+        read_only_fields = ['created_at']

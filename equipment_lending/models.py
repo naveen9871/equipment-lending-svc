@@ -148,3 +148,64 @@ class BorrowRequest(models.Model):
     @property
     def is_overdue(self):
         return self.status == 'issued' and timezone.now() > self.borrow_until
+
+
+class Notification(models.Model):
+    """Notification system for users"""
+    NOTIFICATION_TYPES = [
+        ('request_update', 'Request Update'),
+        ('system', 'System'),
+        ('reminder', 'Reminder'),
+        ('overdue', 'Overdue Alert'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='system')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_request = models.ForeignKey(BorrowRequest, null=True, blank=True, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'notifications'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'is_read']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
+
+
+class Wishlist(models.Model):
+    """User wishlist for equipment"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='wishlisted_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'wishlist'
+        unique_together = ['user', 'equipment']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.equipment.name}"
+
+
+class MaintenanceLog(models.Model):
+    """Equipment maintenance tracking"""
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='maintenance_logs')
+    description = models.TextField()
+    maintenance_date = models.DateTimeField(default=timezone.now)
+    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='maintenance_work')
+    next_maintenance = models.DateTimeField(null=True, blank=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'maintenance_logs'
+        ordering = ['-maintenance_date']
+
+    def __str__(self):
+        return f"{self.equipment.name} - {self.maintenance_date.strftime('%Y-%m-%d')}"
